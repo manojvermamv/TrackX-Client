@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<div class="Container">
+    <div class="calculator">
+        <div class="resultBox">
+            <div class="currentStack" id="fullEquation">0</div>
+            <div class="contentEditable" id="contentEditable" contenteditable="true" inputmode="decimal">0</div>
+            <div class="currentOperator" id="currentOperator"></div>
+        </div>
+        <div id="button-container">
+            <div id="C" class="button-white">C</div>
+            <div id="7" class="button-white buttonGroup">7</div>
+            <div id="8" class="button-white buttonGroup">8</div>
+            <div id="9" class="button-white buttonGroup">9</div>
+            <div id="(" class="button-white">(</div>
+            <div id="4" class="button-white buttonGroup">4</div>
+            <div id="5" class="button-white buttonGroup">5</div>
+            <div id="6" class="button-white buttonGroup">6</div>
+            <div id=")" class="button-white">)</div>
+            <div id="1" class="button-white buttonGroup">1</div>
+            <div id="2" class="button-white buttonGroup">2</div>
+            <div id="3" class="button-white buttonGroup">3</div>
+            <div id="." class="button-white">.</div>
+            <div id="0" class="button-white">0</div>
+            <div id="=" class="button-black">=</div>
+            <div id="@" class="button-black"><-</div>
+            <div id="/" class="button-blue">/</div>
+            <div id="*" class="button-blue">&times;</div>
+            <div id="-" class="button-blue">-</div>
+            <div id="+" class="button-blue">+</div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="app.js" defer></script>
+</html>

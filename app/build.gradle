@@ -1,0 +1,69 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    signingConfigs {
+        release {
+            storeFile file('../platform.keystore')
+            storePassword "127441247"
+            keyAlias "trackx"
+            keyPassword "127441247"
+        }
+    }
+
+    compileSdkVersion 29
+    defaultConfig {
+        applicationId "com.android.sus_client"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+        signingConfig signingConfigs.release
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        //warningsAsErrors true
+        //compilerArgs '-Xlint:unchecked'
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        checkReleaseBuilds false
+    }
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.appcompat:appcompat:1.2.0'
+        }
+    }
+}
+
+dependencies {
+    //implementation 'com.github.Lucem-Anb:RootTools:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.work:work-runtime:2.5.0'
+    implementation 'org.webrtc:google-webrtc:1.0.32006'
+    implementation('io.socket:socket.io-client:2.0.1') {
+        exclude group: 'org.json', module: 'json'
+    }
+
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+    implementation 'org.nanohttpd:nanohttpd-apache-fileupload:2.3.1'
+    implementation 'javax.servlet:javax.servlet-api:4.0.1'
+    implementation 'net.lingala.zip4j:zip4j:2.11.5'
+    implementation 'org.jetbrains:annotations:15.0'
+    implementation 'org.jetbrains:annotations:15.0'
+}

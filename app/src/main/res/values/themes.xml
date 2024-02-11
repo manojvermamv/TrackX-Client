@@ -1,0 +1,25 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.SUS" parent="Theme.AppCompat.NoActionBar">
+        <!-- your app branding color for the app bar -->
+        <item name="colorPrimary">#FF6200EE</item>
+        <!-- darker variant for the status bar and contextual app bars -->
+        <item name="colorPrimaryDark">#FF3700B3</item>
+        <!-- theme UI controls like checkboxes and text fields -->
+        <item name="colorAccent">#FF03DAC5</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.SUS.Transparent" parent="android:Theme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+</resources>
