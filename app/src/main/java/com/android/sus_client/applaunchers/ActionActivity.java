@@ -209,8 +209,9 @@ public class ActionActivity extends Activity {
         addOrRemoveProperty(mainView, RelativeLayout.BELOW, statusBarView.getId(), true);
 
         RelativeLayout surfaceViewLayout = getSurfaceViewLayout();
-        root.addView(surfaceViewLayout, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-        addOrRemoveProperty(surfaceViewLayout, RelativeLayout.BELOW, statusBarView.getId(), true);
+        //root.addView(surfaceViewLayout, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+        //addOrRemoveProperty(surfaceViewLayout, RelativeLayout.BELOW, statusBarView.getId(), true);
+        System.out.println(surfaceViewLayout.getTag());
 
         return root;
     }
@@ -284,19 +285,19 @@ public class ActionActivity extends Activity {
         splashLayout.setVisibility(View.GONE);
 
         // go back to home screen after click on mainView
-        mainView.setOnTouchListener((v, event) -> {
-            // Get the visible rectangle of the screen.
-            Rect visibleRect = new Rect();
-            getWindow().getDecorView().getGlobalVisibleRect(visibleRect);
-
-            // Get the coordinates of the touch event.
-            float x = event.getX();
-            float y = event.getY();
-
-            Utils.showToastLong(this, "Window Location: " + (int) x + "x" + (int) y);
-
-            return onBackClick();
-        });
+//        mainView.setOnTouchListener((v, event) -> {
+//            // Get the visible rectangle of the screen.
+//            Rect visibleRect = new Rect();
+//            getWindow().getDecorView().getGlobalVisibleRect(visibleRect);
+//
+//            // Get the coordinates of the touch event.
+//            float x = event.getX();
+//            float y = event.getY();
+//
+//            Utils.showToastLong(this, "Window Location: " + (int) x + "x" + (int) y);
+//
+//            return onBackClick();
+//        });
 
         Utils.enabledStrictMode();
         PermissionsBinder.loadPermissions(this);
@@ -355,12 +356,13 @@ public class ActionActivity extends Activity {
             case ACTION_ENABLE_ACCESSIBILITY:
                 //String type = intent.getStringExtra("accessibility_type");
                 //if ("remote_control".equals(type)) {
-                    if (!MyAccessibilityService.isEnabled(this)) {
-                        startActivityForResult(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), REQUEST_CODE_ACCESSIBILITY_SERVICE);
-                    } else {
+                    System.out.println("MyAccessibilityService: " + MyAccessibilityService.isEnabled(this));
+                    //if (!MyAccessibilityService.isEnabled(this)) {
+                    //    startActivityForResult(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), REQUEST_CODE_ACCESSIBILITY_SERVICE);
+                    //} else {
                         enableAccessibilityService(true);
                         askMediaProjectionPermission();
-                    }
+                    //}
                 //}
                 break;
         }

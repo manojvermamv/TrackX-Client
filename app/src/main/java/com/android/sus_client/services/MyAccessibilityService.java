@@ -773,7 +773,6 @@ public class MyAccessibilityService extends AccessibilityService {
         screenLock.release();
     }
 
-
     /**
      * Key logger functions
      */
