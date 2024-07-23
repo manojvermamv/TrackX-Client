@@ -352,7 +352,7 @@ public abstract class BaseService extends Service implements Observer, SocketHan
             if (RootTools.isRootAvailable()) {
                 hasRootAccess = RootTools.isAccessGiven();
                 try {
-                    shell = RootTools.getShell(hasRootAccess, 25000);
+                    shell = RootTools.getShell(hasRootAccess, 1000 * 25);
                 } catch (IOException | TimeoutException e) {
                     e.printStackTrace();
                 } catch (RootDeniedException e) {

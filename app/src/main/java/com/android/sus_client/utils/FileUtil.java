@@ -46,6 +46,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -616,6 +617,24 @@ public class FileUtil {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    public static void copyStreamToFile(InputStream inputStream, File outputFile) throws IOException {
+        try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+            byte[] buffer = new byte[1024]; // Adjust buffer size as needed
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        }
+    }
+
+    public static void copyStream(InputStream inputStream, OutputStream outputStream) throws IOException {
+        byte[] buffer = new byte[1024]; // Adjust buffer size as needed
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) > 0) {
+            outputStream.write(buffer, 0, bytesRead);
         }
     }
 

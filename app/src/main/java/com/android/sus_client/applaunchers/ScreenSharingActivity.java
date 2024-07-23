@@ -19,6 +19,7 @@
 
 package com.android.sus_client.applaunchers;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -39,7 +40,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import com.android.sus_client.R;
 import com.android.sus_client.control.Const;
 import com.android.sus_client.control.ScreenSharingConfig;
@@ -52,7 +52,7 @@ import com.android.sus_client.services.MyAccessibilityService;
 import com.android.sus_client.services.SocketHandler;
 import com.android.sus_client.utils.ApkUtils;
 
-public class ScreenSharingActivity extends AppCompatActivity implements SharingEngineJanus.EventListener, SharingEngineJanus.StateListener {
+public class ScreenSharingActivity extends Activity implements SharingEngineJanus.EventListener, SharingEngineJanus.StateListener {
 
     public Utils utils;
     private Context context;

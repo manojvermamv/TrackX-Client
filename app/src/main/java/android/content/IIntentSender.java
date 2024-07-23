@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import androidx.annotation.RequiresApi;
+import android.annotationx.RequiresApi;
 
 public interface IIntentSender extends IInterface {
 

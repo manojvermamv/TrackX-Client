@@ -2,7 +2,7 @@ package android.os;
 
 import android.content.pm.UserInfo;
 
-import androidx.annotation.RequiresApi;
+import android.annotationx.RequiresApi;
 
 import java.util.List;
 

@@ -1,0 +1,51 @@
+plugins {
+    id 'com.android.application'
+}
+
+def configuration = rootProject.configuration
+
+android {
+    namespace configuration.package + ".storage_feature"
+    compileSdkVersion configuration.compileSdkVersion
+
+    defaultConfig {
+        applicationId configuration.package + ".storage_feature"
+        minSdkVersion configuration.minSdkVersion
+        targetSdkVersion configuration.targetSdkVersion
+        versionCode configuration.versionCode
+        versionName configuration.versionName
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        checkReleaseBuilds false
+    }
+    configurations.all {
+        resolutionStrategy {
+            force "androidx.appcompat:appcompat:$activityVersion"
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+
+    implementation "androidx.appcompat:appcompat:$activityVersion"
+
+    //implementation project(path: ':extension_feature')
+}

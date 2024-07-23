@@ -3,20 +3,62 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        jcenter()
     }
+
+    ext {
+        agpVersion = '4.2.2'
+
+        // Used by Main project
+        activityVersion = '1.2.0'
+        fragmentVersion = '1.1.0'
+        appCompatVersion = '1.3.1'
+        lifecycleVersion = '2.6.2'
+
+        configuration = [
+                package          : "com.android.sus_client",
+                compileSdkVersion: 29,
+                targetSdkVersion : 29,
+                minSdkVersion    : 21,
+                versionCode      : 101,
+                versionName      : "1.01",
+        ]
+    }
+
     dependencies {
-        classpath "com.android.tools.build:gradle:4.2.1"
+        classpath "com.android.tools.build:gradle:$agpVersion"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
+
+// buildTypes: debug or release
+def buildType = 'debug'
+def destPath = '/sdcard/DynamicLoadHost'
+
 allprojects {
     repositories {
         google()
         mavenCentral()
         jcenter()
+    }
+
+    task uploadApk(type: Exec, dependsOn: "assemble${buildType.capitalize()}") {
+        try {
+            exec {
+                commandLine 'cmd', '/c', 'adb', 'shell', 'mkdir', destPath
+            }
+            exec {
+                commandLine 'cmd', '/c', 'adb', 'push', project.name + '-' + buildType + '.apk', destPath
+                workingDir project.buildDir.toString() + '/outputs/apk/' + buildType + '/'
+            }
+        } catch (Exception ignored) {
+        }
+    }
+    task buildLib(type: Jar, dependsOn: "compile${buildType.capitalize()}Sources") {
+        from(project.buildDir.toString() + '/intermediates/app_classes/' + buildType)
     }
 }
 

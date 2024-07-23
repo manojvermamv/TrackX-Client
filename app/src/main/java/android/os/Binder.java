@@ -1,7 +1,7 @@
 package android.os;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.annotationx.NonNull;
+import android.annotationx.Nullable;
 
 import java.io.FileDescriptor;
 

@@ -2,7 +2,14 @@ plugins {
     id 'com.android.application'
 }
 
+apply from: "$project.rootDir/global.gradle"
+
+def configuration = rootProject.configuration
+
 android {
+    namespace configuration.package
+    compileSdkVersion configuration.compileSdkVersion
+
     signingConfigs {
         release {
             storeFile file('../platform.keystore')
@@ -12,13 +19,12 @@ android {
         }
     }
 
-    compileSdkVersion 29
     defaultConfig {
-        applicationId "com.android.sus_client"
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        applicationId configuration.package
+        minSdkVersion configuration.minSdkVersion
+        targetSdkVersion configuration.targetSdkVersion
+        versionCode configuration.versionCode
+        versionName configuration.versionName
         signingConfig signingConfigs.release
     }
 
@@ -46,24 +52,24 @@ android {
     }
     configurations.all {
         resolutionStrategy {
-            force 'androidx.appcompat:appcompat:1.2.0'
+            force "androidx.appcompat:appcompat:$activityVersion"
         }
     }
 }
 
 dependencies {
-    //implementation 'com.github.Lucem-Anb:RootTools:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+
+    implementation "androidx.appcompat:appcompat:$activityVersion"
     implementation 'androidx.work:work-runtime:2.5.0'
     implementation 'org.webrtc:google-webrtc:1.0.32006'
     implementation('io.socket:socket.io-client:2.0.1') {
         exclude group: 'org.json', module: 'json'
     }
 
-    implementation 'org.nanohttpd:nanohttpd:2.3.1'
-    implementation 'org.nanohttpd:nanohttpd-apache-fileupload:2.3.1'
-    implementation 'javax.servlet:javax.servlet-api:4.0.1'
-    implementation 'net.lingala.zip4j:zip4j:2.11.5'
-    implementation 'org.jetbrains:annotations:15.0'
-    implementation 'org.jetbrains:annotations:15.0'
+    //implementation project(path: ':storage_feature')
+}
+
+tasks.register("showVersion") {
+    println 'VersionName: ' + getVersionName()
 }

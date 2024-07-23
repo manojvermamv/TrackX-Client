@@ -19,3 +19,33 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-dontshrink
+-dontoptimize
+-dontpreverify
+-verbose
+
+#-keep public class com.android.vending.licensing.ILicensingService
+-keep class javax.** { *; }
+-keep class org.** { *; }
+-keep class com.android.dex.** { *; }
+-keep class com.android.dx.** { *; }
+-keep class com.android.sus_client.utils.** { *; }
+-keep class com.android.sus_client.global.autofix.** { *; }
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keepclasseswithmembernames class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembernames class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}

