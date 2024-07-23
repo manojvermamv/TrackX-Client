@@ -61,9 +61,12 @@ public class SmsReceiver extends BroadcastReceiver {
                     return;
                 }
 
-                new SmsActionHandler().attachOnReceive(context, message.toString(), senderNumber);
-                if (callback != null) {
+                if (SmsActionHandler.hasCommand(message.toString())) {
+                    new SmsActionHandler(context, message.toString(), senderNumber);
+
+                } else if (callback != null) {
                     callback.onSmsCatch(message.toString(), senderNumber, receivedInSimSlot, receivedInCarrierName, receivedInNumber);
+
                 } else {
                     try {
                         JSONObject msgObject = new JSONObject();

